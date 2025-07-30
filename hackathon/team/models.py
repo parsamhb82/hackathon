@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
+
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -17,6 +19,8 @@ class Invitation(models.Model):
     accepted = models.BooleanField(default=False)
     accepted_at = models.DateTimeField(null=True, blank=True)
     is_open = models.BooleanField(default=True)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False) 
+
 
     def save(self, *args, **kwargs):
 
