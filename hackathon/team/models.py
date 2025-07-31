@@ -54,6 +54,7 @@ class Application(models.Model):
     motivation_text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
-
+    rejection_reason = models.TextField(default='', blank=True, null=True)
+    
     def __str__(self):
         return f"Application for {self.demand.title} by {self.user.username} with id:{self.id}"

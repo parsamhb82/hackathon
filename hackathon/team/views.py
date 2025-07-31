@@ -1,7 +1,17 @@
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
 
-from team.serializers import CreateTeamSerializer, CreateInvitationSerializer, CreateTeamDemandSerializer, ApplicationCreateSerializer
+
+from team.serializers import (CreateInvitationSerializer,
+                              CreateTeamSerializer,
+                              CreateInvitationSerializer,
+                              CreateTeamDemandSerializer,
+                              ApplicationCreateSerializer,
+                              ApplicationRejectionSerializer)
+
 from team.models import Invitation, TeamDemand, Application 
 
 from rest_framework.exceptions import ValidationError
@@ -121,3 +131,39 @@ class CloseTeamDemandView(APIView):
         demand.save()
 
         return Response({"detail": "Team demand closed successfully."}, status=status.HTTP_200_OK)
+
+
+class RejectApplicationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        application = get_object_or_404(Application, pk=pk)
+
+        # Optional: check permission
+        if request.user.profile.team != application.demand.team:
+            return Response({"detail": "You do not have permission to reject this application."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        serializer = ApplicationRejectionSerializer(application, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            rejection_reason = serializer.validated_data.get('rejection_reason', '')
+            subject = "You're application status update"
+            message = (
+                    f"Hi {application.user.username},\n\n"
+                    f"The team '{application.demand.team}' has rejected your application.\n\n"
+                    f"Reason: {rejection_reason}\n\n"
+                    f"Best regards,\n"
+                    f"Hackathon Team"
+                    )           
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [application.user.email],
+                fail_silently=False,
+            )
+            serializer.save(accepted=False) 
+            return Response({"detail": "Application rejected successfully."})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

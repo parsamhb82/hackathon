@@ -5,7 +5,8 @@ from team.views import (CreateTeamView,
                         CreateTeamDemandView,
                         CreateApplicationView,
                         AcceptApplicationView,
-                        CloseTeamDemandView)
+                        CloseTeamDemandView,
+                        RejectApplicationView)
 
 urlpatterns = [
     path('create/', CreateTeamView.as_view(), name='create-team'),
@@ -14,5 +15,6 @@ urlpatterns = [
     path('demands/create/', CreateTeamDemandView.as_view(), name='create-team-demand'),
     path('demands/<int:pk>/apply/', CreateApplicationView.as_view(), name='apply-to-demand'),
     path('applications/<int:pk>/accept/', AcceptApplicationView.as_view(), name="accept-application"),
-    path('demands/<int:pk>/close/', CloseTeamDemandView.as_view(), name="close-team-demand")
+    path('demands/<int:pk>/close/', CloseTeamDemandView.as_view(), name="close-team-demand"),
+    path('applications/<int:pk>/reject/', RejectApplicationView.as_view(), name="reject-application"),
 ]

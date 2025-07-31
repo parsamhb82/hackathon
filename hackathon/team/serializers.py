@@ -104,3 +104,10 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
                 demand=demand,
                 **validated_data
                 )
+
+class ApplicationRejectionSerializer(serializers.ModelSerializer):
+    rejection_reason = serializers.CharField(required=False)
+
+    class Meta:
+        model = Application
+        fields = ['rejection_reason']
