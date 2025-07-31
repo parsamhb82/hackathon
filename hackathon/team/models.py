@@ -46,7 +46,7 @@ class TeamDemand(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"team demand  {self.team.name} for {self.title}"
+        return f"team demand  {self.team.name} for {self.title}, pk:{self.id}"
 
 class Application(models.Model):
     demand = models.ForeignKey(TeamDemand, on_delete=models.CASCADE)
@@ -56,4 +56,4 @@ class Application(models.Model):
     accepted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Application for {self.demand.title} by {self.user.username}"
+        return f"Application for {self.demand.title} by {self.user.username} with id:{self.id}"

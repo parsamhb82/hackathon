@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from team.models import Team, Invitation, TeamDemand
+from team.models import Team, Invitation, TeamDemand, Application
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -88,3 +88,19 @@ class CreateTeamDemandSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return team_demand
+    
+
+class ApplicationCreateSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Application
+            fields = ['motivation_text']
+
+        def create(self, validated_data):
+            user = self.context['request'].user
+            demand = self.context['demand']
+
+            return Application.objects.create(
+                user=user,
+                demand=demand,
+                **validated_data
+                )

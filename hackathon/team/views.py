@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 
-from team.serializers import CreateTeamSerializer, CreateInvitationSerializer, CreateTeamDemandSerializer
-from team.models import Invitation
+from team.serializers import CreateTeamSerializer, CreateInvitationSerializer, CreateTeamDemandSerializer, ApplicationCreateSerializer
+from team.models import Invitation, TeamDemand
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView
@@ -65,4 +65,17 @@ class CreateTeamDemandView(CreateAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request'] = self.request
+        return context
+    
+
+class CreateApplicationView(CreateAPIView):
+    serializer_class = ApplicationCreateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        demand = get_object_or_404(TeamDemand, pk=self.kwargs['pk'])
+        context['demand'] = demand
+        context['request'] = self.request
+
         return context
