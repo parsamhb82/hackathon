@@ -139,3 +139,5 @@ GitHub.sublime-settings
 
 hackathon_env
 *.env
+
+migrations/
