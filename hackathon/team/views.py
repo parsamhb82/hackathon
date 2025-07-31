@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 
 from team.serializers import CreateTeamSerializer, CreateInvitationSerializer, CreateTeamDemandSerializer, ApplicationCreateSerializer
-from team.models import Invitation, TeamDemand
+from team.models import Invitation, TeamDemand, Application 
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView
@@ -79,3 +79,28 @@ class CreateApplicationView(CreateAPIView):
         context['request'] = self.request
 
         return context
+
+class AcceptApplicationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        application = get_object_or_404(Application, pk=pk)
+        team = application.demand.team
+
+
+        if request.user.profile.team != team:
+            return Response({"detail": "You do not have permission to accept this application."}, status=status.HTTP_403_FORBIDDEN)
+
+        if application.accepted:
+            return Response({"detail": "Application has already been accepted."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        application.accepted = True
+        profile = application.user.profile
+        if profile.team:
+            raise ValidationError("User is already a member of a team.")
+        profile.team = team
+        profile.save()
+        application.save()
+
+        return Response({"detail": "Application accepted successfully."}, status=status.HTTP_200_OK)
