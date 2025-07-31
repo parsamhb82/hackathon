@@ -46,8 +46,8 @@ class TeamDemand(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Enrollment Application for {self.team.name} by {self.user.username}"
-    
+        return f"team demand  {self.team.name} for {self.title}"
+
 class Application(models.Model):
     demand = models.ForeignKey(TeamDemand, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

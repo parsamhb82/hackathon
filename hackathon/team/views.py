@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 
-from team.serializers import CreateTeamSerializer, CreateInvitationSerializer
+from team.serializers import CreateTeamSerializer, CreateInvitationSerializer, CreateTeamDemandSerializer
 from team.models import Invitation
 
 from rest_framework.exceptions import ValidationError
@@ -56,3 +56,13 @@ class InvitationAcceptView(APIView):
         # Optional: Add user to team logic
 
         return Response({"detail": "Invitation accepted successfully."}, status=status.HTTP_200_OK)
+    
+
+class CreateTeamDemandView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CreateTeamDemandSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context

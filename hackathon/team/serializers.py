@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from team.models import Team, Invitation
+from team.models import Team, Invitation, TeamDemand
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -69,3 +69,22 @@ class CreateInvitationSerializer(serializers.ModelSerializer):
             [invitation.user.email],
             fail_silently=False,
         )
+
+class CreateTeamDemandSerializer(serializers.ModelSerializer):
+    description = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = TeamDemand
+        fields = ['title', 'description']
+
+    def create(self, validated_data):
+        request = self.context['request']
+        team = getattr(request.user.profile, 'team', None)
+        if not team:
+            raise serializers.ValidationError("You must be part of a team to create a demand.")
+
+        team_demand = TeamDemand.objects.create(
+            team=team,
+            **validated_data
+        )
+        return team_demand
