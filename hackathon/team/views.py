@@ -31,12 +31,10 @@ class InvitationCreateView(CreateAPIView):
     serializer_class = CreateInvitationSerializer
     permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        user = self.request.user
-        team = user.profile.team
-        if not team:
-            raise ValidationError("You must be a member of a team to create an invitation.")
-        serializer.save(team=team, user=user)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class InvitationAcceptView(APIView):
     permission_classes = [IsAuthenticated]
