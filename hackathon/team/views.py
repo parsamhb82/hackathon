@@ -104,3 +104,20 @@ class AcceptApplicationView(APIView):
         application.save()
 
         return Response({"detail": "Application accepted successfully."}, status=status.HTTP_200_OK)
+
+class CloseTeamDemandView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        demand = get_object_or_404(TeamDemand, pk=pk)
+
+        if demand.team != request.user.profile.team:
+            return Response({"detail": "You do not have permission to close this demand."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not demand.is_open:
+            return Response({"detail": "Team demand is already closed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        demand.is_open = False
+        demand.save()
+
+        return Response({"detail": "Team demand closed successfully."}, status=status.HTTP_200_OK)
