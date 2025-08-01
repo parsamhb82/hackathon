@@ -64,6 +64,7 @@ class Application(models.Model):
     motivation_text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     application_status = models.PositiveSmallIntegerField(choices=APPLICATION_STATUS_CHOICES, default=APPLICATION_STATUS_PENDING)
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Application for {self.demand.title} by {self.user.username} with id:{self.id}"

@@ -145,8 +145,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=90),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
 }
 
 MEDIA_URL = '/media/'  # URL to access media files
