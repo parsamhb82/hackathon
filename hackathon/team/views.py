@@ -101,11 +101,11 @@ class AcceptApplicationView(APIView):
         if request.user.profile.team != team:
             return Response({"detail": "You do not have permission to accept this application."}, status=status.HTTP_403_FORBIDDEN)
 
-        if application.accepted:
-            return Response({"detail": "Application has already been accepted."},
+        if application.application_status != Application.APPLICATION_STATUS_PENDING:
+            return Response({"detail": "Application has already changed"},
                             status=status.HTTP_400_BAD_REQUEST)
-        
-        application.accepted = True
+
+        application.application_status = Application.APPLICATION_STATUS_ACCEPTED
         profile = application.user.profile
         if profile.team:
             raise ValidationError("User is already a member of a team.")
@@ -155,12 +155,16 @@ class RejectApplicationView(APIView):
     def post(self, request, pk):
         application = get_object_or_404(Application, pk=pk)
 
+        if application.application_status != Application.APPLICATION_STATUS_PENDING:
+            return Response({"detail": "Application status has already changed"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         # Optional: check permission
         if request.user.profile.team != application.demand.team:
             return Response({"detail": "You do not have permission to reject this application."},
                             status=status.HTTP_403_FORBIDDEN)
 
-        serializer = ApplicationRejectionSerializer(application, data=request.data, partial=True)
+        serializer = ApplicationRejectionSerializer(data=request.data)
         
         if serializer.is_valid():
             rejection_reason = serializer.validated_data.get('rejection_reason', '')
@@ -180,6 +184,8 @@ class RejectApplicationView(APIView):
                 [application.user.email],
                 fail_silently=False,
             )
-            serializer.save(accepted=False) 
+            application.application_status = Application.APPLICATION_STATUS_REJECTED
+            application.rejection_reason = rejection_reason
+            application.save()
             return Response({"detail": "Application rejected successfully."})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
