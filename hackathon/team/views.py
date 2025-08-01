@@ -113,6 +113,22 @@ class AcceptApplicationView(APIView):
         profile.save()
         application.save()
 
+        subject = "You're application status update"
+        message = (
+                f"Hi {application.user.username},\n\n"
+                f"The team '{application.demand.team}' has accepted your application and now you're part of their team.\n\n"
+                f"Best regards,\n"
+                f"Hackathon Team"
+                )           
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [application.user.email],
+            fail_silently=False,
+        )
+
         return Response({"detail": "Application accepted successfully."}, status=status.HTTP_200_OK)
 
 class CloseTeamDemandView(APIView):
