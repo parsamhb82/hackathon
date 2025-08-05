@@ -7,6 +7,9 @@ from team.views import (CreateTeamView,
                         AcceptApplicationView,
                         CloseTeamDemandView,
                         RejectApplicationView)
+from team.list_get_views import (InvitationListView,
+                            TeamDemandListView)
+
 
 urlpatterns = [
     path('create/', CreateTeamView.as_view(), name='create-team'),
@@ -17,4 +20,6 @@ urlpatterns = [
     path('applications/<int:pk>/accept/', AcceptApplicationView.as_view(), name="accept-application"),
     path('demands/<int:pk>/close/', CloseTeamDemandView.as_view(), name="close-team-demand"),
     path('applications/<int:pk>/reject/', RejectApplicationView.as_view(), name="reject-application"),
+    path('invitations/', InvitationListView.as_view(), name="list-invitations"),
+    path('demands/', TeamDemandListView.as_view(), name="list-team-demands"),
 ]
