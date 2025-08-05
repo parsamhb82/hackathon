@@ -1,5 +1,5 @@
 from team.models import Team, TeamDemand, Application, Invitation
-from team.list_get_serializers import TeamDemandSerializer, InvitationSerializer, TeamSerializer
+from team.list_get_serializers import TeamDemandSerializer, InvitationSerializer, TeamSerializer, ApplicationSerializer
 
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -9,6 +9,7 @@ from rest_framework.response import Response
 class TeamDemandListView(ListAPIView):
     queryset = TeamDemand.objects.filter(is_open=True)
     serializer_class = TeamDemandSerializer
+
 
 class InvitationListView(ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -20,9 +21,17 @@ class InvitationListView(ListAPIView):
         return Invitation.objects.filter(team=user.profile.team)
 
 
-    
-
 class TeamListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    
+
+class ApplicationListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Application.objects.filter(demand__team=user.profile.team)

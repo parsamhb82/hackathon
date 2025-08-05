@@ -14,6 +14,7 @@ class TeamDemandSerializer(serializers.ModelSerializer):
     def get_team(self, obj):
         return obj.team.name
 
+
 class InvitationSerializer(serializers.ModelSerializer):
     team = serializers.SerializerMethodField()
     username = serializers.SerializerMethodField()
@@ -27,6 +28,7 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     def get_username(self, obj):
         return obj.user.username
+    
 
 class TeamSerializer(serializers.ModelSerializer):
     members = serializers.SerializerMethodField()
@@ -42,3 +44,17 @@ class TeamSerializer(serializers.ModelSerializer):
             "username": user.username,
             "email": user.email
         } for member in members if (user := member.user)]
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    team = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Application
+        fields = ["id", "user", "team", "application_status", "created_at"]
+
+    def get_user(self, obj):
+        return obj.user.username
+
+    def get_team(self, obj):
+        return obj.demand.team.name
