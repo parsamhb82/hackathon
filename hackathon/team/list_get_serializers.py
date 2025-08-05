@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from team.models import Team, TeamDemand, Invitation, Application
 
+from user.models import UserProfile
+
 class TeamDemandSerializer(serializers.ModelSerializer):
     team = serializers.SerializerMethodField()
 
@@ -25,3 +27,18 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     def get_username(self, obj):
         return obj.user.username
+
+class TeamSerializer(serializers.ModelSerializer):
+    members = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Team
+        fields = ["id", "name", "members", "picture", "explanation"]
+
+    def get_members(self, obj):
+        members = UserProfile.objects.filter(team=obj).select_related("user")
+        return [{
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        } for member in members if (user := member.user)]
