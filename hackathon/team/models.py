@@ -46,14 +46,25 @@ class TeamDemand(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Enrollment Application for {self.team.name} by {self.user.username}"
-    
+        return f"team demand  {self.team.name} for {self.title}, pk:{self.id}"
+
 class Application(models.Model):
+    APPLICATION_STATUS_PENDING = 1
+    APPLICATION_STATUS_ACCEPTED = 2
+    APPLICATION_STATUS_REJECTED = 3
+
+    APPLICATION_STATUS_CHOICES = [
+        (APPLICATION_STATUS_PENDING, "Pending"),
+        (APPLICATION_STATUS_ACCEPTED, "Accepted"),
+        (APPLICATION_STATUS_REJECTED, "Rejected"),
+    ]
+
     demand = models.ForeignKey(TeamDemand, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     motivation_text = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    accepted = models.BooleanField(default=False)
+    application_status = models.PositiveSmallIntegerField(choices=APPLICATION_STATUS_CHOICES, default=APPLICATION_STATUS_PENDING)
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Application for {self.demand.title} by {self.user.username}"
+        return f"Application for {self.demand.title} by {self.user.username} with id:{self.id}"
