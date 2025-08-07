@@ -13,6 +13,7 @@ from team.serializers import (CreateInvitationSerializer,
                               ApplicationRejectionSerializer)
 
 from team.models import Invitation, TeamDemand, Application 
+from team.tasks import send_email_task
 
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import CreateAPIView
@@ -121,13 +122,7 @@ class AcceptApplicationView(APIView):
                 f"Hackathon Team"
                 )           
 
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [application.user.email],
-            fail_silently=False,
-        )
+        send_email_task.delay(subject, message, application.user.email)
 
         return Response({"detail": "Application accepted successfully."}, status=status.HTTP_200_OK)
 
@@ -177,13 +172,7 @@ class RejectApplicationView(APIView):
                     f"Hackathon Team"
                     )           
 
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [application.user.email],
-                fail_silently=False,
-            )
+            send_email_task.delay(subject, message, application.user.email)
             application.application_status = Application.APPLICATION_STATUS_REJECTED
             application.rejection_reason = rejection_reason
             application.save()
